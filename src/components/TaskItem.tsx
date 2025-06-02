@@ -133,4 +133,56 @@ const styles = StyleSheet.create({
   },
 });
 
+const handleToggleComplete = (taskId: number) => {
+  const task = tasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  if (task.completed && task.isRecurring) {
+    // Cria uma nova ocorrência da tarefa
+    const newDueDate = calculateNextOccurrence(task.dueDate, task.recurrencePattern);
+    
+    if (!task.recurrenceEndDate || new Date(newDueDate) <= new Date(task.recurrenceEndDate)) {
+      const newTask = {
+        ...task,
+        id: generateNewId(), // Você precisa de uma função para gerar novos IDs
+        completed: false,
+        dueDate: newDueDate.toISOString()
+      };
+      
+      // Adiciona a nova tarefa à lista
+      setTasks([...tasks.filter(t => t.id !== taskId), newTask]);
+      return;
+    }
+  }
+
+  // Alterna o estado de conclusão para tarefas não recorrentes
+  setTasks(tasks.map(t => 
+    t.id === taskId ? { ...t, completed: !t.completed } : t
+  ));
+};
+
+function calculateNextOccurrence(dueDate: string | undefined, pattern: string | undefined): Date {
+  const date = dueDate ? new Date(dueDate) : new Date();
+  const newDate = new Date(date);
+  
+  switch (pattern) {
+    case 'Diariamente':
+      newDate.setDate(newDate.getDate() + 1);
+      break;
+    case 'Semanalmente':
+      newDate.setDate(newDate.getDate() + 7);
+      break;
+    case 'Mensalmente':
+      newDate.setMonth(newDate.getMonth() + 1);
+      break;
+    case 'Anualmente':
+      newDate.setFullYear(newDate.getFullYear() + 1);
+      break;
+    default:
+      newDate.setDate(newDate.getDate() + 1);
+  }
+  
+  return newDate;
+}
+
 export default TaskItem;
