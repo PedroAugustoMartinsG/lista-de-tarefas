@@ -14,6 +14,9 @@ interface Task {
   dueDate?: string;
   details?: string;
   relatedTasks?: number[];
+  isRecurring?: boolean;
+  recurrencePattern?: 'Diariamente' | 'Semanalmente' | 'Mensalmente' | 'Anualmente';
+  recurrenceEndDate?: string;
 }
 
 interface TaskItemProps {
