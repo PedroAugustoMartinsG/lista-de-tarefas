@@ -6,6 +6,60 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { theme } from '../theme';
 import { Task } from '../types/types';
 
+{/* Seção de Recorrência */}
+<View style={styles.recurrenceContainer}>
+  <Text style={styles.sectionTitle}>Recorrência</Text>
+  
+  <View style={styles.recurrenceRow}>
+    <Text style={styles.recurrenceLabel}>Tarefa Recorrente:</Text>
+    <Switch
+      value={formData.isRecurring || false}
+      onValueChange={(value) => setFormData({ ...formData, isRecurring: value })}
+      trackColor={{ true: theme.colors.primary, false: theme.colors.border }}
+      thumbColor={theme.colors.text}
+    />
+  </View>
+
+  {formData.isRecurring && (
+    <>
+      <Picker
+        selectedValue={formData.recurrencePattern}
+        onValueChange={(value) => setFormData({ ...formData, recurrencePattern: value })}
+        style={styles.picker}
+      >
+        <Picker.Item label="Diária" value="daily" />
+        <Picker.Item label="Semanal" value="weekly" />
+        <Picker.Item label="Mensal" value="monthly" />
+        <Picker.Item label="Anual" value="yearly" />
+      </Picker>
+
+      <TouchableOpacity 
+        style={styles.dateButton}
+        onPress={() => setShowEndDatePicker(true)}
+      >
+        <Text style={styles.dateButtonText}>
+          {formData.recurrenceEndDate 
+            ? `Termina em: ${new Date(formData.recurrenceEndDate).toLocaleDateString()}` 
+            : "Definir data de término"}
+        </Text>
+      </TouchableOpacity>
+
+      {showEndDatePicker && (
+        <DateTimePicker
+          value={formData.recurrenceEndDate ? new Date(formData.recurrenceEndDate) : new Date()}
+          mode="date"
+          display="default"
+          minimumDate={new Date(formData.dueDate || new Date())}
+          onChange={(event, date) => {
+            setShowEndDatePicker(false);
+            date && setFormData({ ...formData, recurrenceEndDate: date.toISOString() });
+          }}
+        />
+      )}
+    </>
+  )}
+</View>
+
 interface TaskDetailsModalProps {
   visible: boolean;
   task: Task;
